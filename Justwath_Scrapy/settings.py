@@ -19,22 +19,28 @@ NEWSPIDER_MODULE = 'Justwath_Scrapy.spiders'
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
 
-# Configure maximum concurrent requests performed by Scrapy (default: 16)
+
+# 병렬 처리. 주석처리면 기본 16으로 설정됨
+# Scrapy 다운로더가 수행 할 최대 동시 (즉, 동시) 요청 수
 CONCURRENT_REQUESTS = 9
 
-# Configure a delay for requests for the same website (default: 0)
-# See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
-# See also autothrottle settings and docs
+# 다운로드 딜레이
+# 웹 사이트에서 연속 페이지를 다운로드하기 전에 다운로더가 기다려야하는 시간 (초)
 DOWNLOAD_DELAY = 1
 # The download delay setting will honor only one of:
-CONCURRENT_REQUESTS_PER_DOMAIN = 2
+
+# 웹 사이트 도메인 동시 병렬 처리 개수
+CONCURRENT_REQUESTS_PER_DOMAIN = 1
+
+# 특정 웹 사이트 IP 주소 병렬 처리 개수
 #CONCURRENT_REQUESTS_PER_IP = 16
 
+
 # Disable cookies (enabled by default)
-#COOKIES_ENABLED = False
+COOKIES_ENABLED = True
 
 # Disable Telnet Console (enabled by default)
-#TELNETCONSOLE_ENABLED = False
+TELNETCONSOLE_ENABLED = False
 
 # Override the default request headers:
 #DEFAULT_REQUEST_HEADERS = {
@@ -71,6 +77,7 @@ DOWNLOADER_MIDDLEWARES = {
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    'Justwath_Scrapy.pipelines.JustwatchCsvPipeline': 300,
+   # 'Justwath_Scrapy.pipelines.MySQLPipeline' : 800,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -88,7 +95,7 @@ ITEM_PIPELINES = {
 
 # Enable and configure HTTP caching (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html#httpcache-middleware-settings
-HTTPCACHE_ENABLED = False
+HTTPCACHE_ENABLED = True
 HTTPCACHE_EXPIRATION_SECS = 30
 HTTPCACHE_DIR = 'httpcache'
 HTTPCACHE_IGNORE_HTTP_CODES = []
@@ -104,4 +111,5 @@ HTTPERROR_ALLOWED_CODES = [404]
 #csv 저장시 순서 정렬
 
 FEED_EXPORT_FIELDS = ["title_kor" , "opening_date" , "just_rating" , "imdb_rating" , "runtime" , "synopsis" , "director" , "actors" , "genre" , "posterLink"]
+
 

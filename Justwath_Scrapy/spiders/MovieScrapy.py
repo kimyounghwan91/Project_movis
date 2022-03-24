@@ -15,8 +15,6 @@ from time import sleep
 from fake_useragent import UserAgent
 
 
-
-
 class MovieScrapySpider(scrapy.Spider):
     name="MovieScrapy"
     custom_settings = {
@@ -26,13 +24,18 @@ class MovieScrapySpider(scrapy.Spider):
         }
     }
 
+
+    
+
+    # OTT_CATEGORY = [netflix, disney-plus, wavve,watcha]
     def start_requests(self):
         urls = []
-        for year in map(str,range(1960,2023)):            
-            sortingUrl = 'https://www.justwatch.com/kr/%EB%8F%99%EC%98%81%EC%83%81%EC%84%9C%EB%B9%84%EC%8A%A4/netflix?content_type=movie&release_year_from={}&release_year_until={}'.format(year, year)
+        for year in map(str,range(1900,2023)):            
+            sortingUrl = 'https://www.justwatch.com/kr/%EB%8F%99%EC%98%81%EC%83%81%EC%84%9C%EB%B9%84%EC%8A%A4/wavve?content_type=movie&release_year_from={}&release_year_until={}'.format(year, year)
             urls.append(sortingUrl)
-        for url in urls:
+        for url in urls:  
             yield scrapy.Request(url, callback=self.link_parse)
+ 
 
 
     def link_parse(self, response):
@@ -41,38 +44,43 @@ class MovieScrapySpider(scrapy.Spider):
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-gpu")
-
+        chrome_options.add_argument("--log-level=3")
+        chrome_options.add_argument("--disable-logging")
+        chrome_options.add_argument("--enable-precise-memory-info")
         # driver.maximize_window()
         driver = webdriver.Chrome(executable_path=path_chrome, chrome_options=chrome_options)
-        driver.get(response.url)
-        start = time.time()
-        # driver.implicitly_wait(10)
-        counter = driver.find_element_by_class_name("total-titles").text
+        driver.get(response.url)  
 
 
-        last_height = driver.execute_script("return document.body.scrollHeight")
+        scroll_location = driver.execute_script("return document.body.scrollHeight")
+        # 웹페이지 맨 아래까지 무한 스크롤 내리기
         while True:
+            # 스크롤을 화면 가장 아래로 내린다.
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            sleep(2)
+            # 페이지 로딩 대기
+            time.sleep(1)
+            # 새로운 높이를 가져와 저장
             new_height = driver.execute_script("return document.body.scrollHeight")
-            if new_height == last_height:
+            # 현재 위치와 스크롤 내린 새로운 높이가 같으면 멈춤
+            # 그게 아닐시 다시 반복           
+            if new_height == scroll_location:
                 break
-            last_height = new_height
+            else:
+                scroll_location = driver.execute_script("return document.body.scrollHeight")
+            # scroll_location = new_height
             wait=WebDriverWait(driver, 3)
 
         try:
-            # ID가 myDynamicElement인 element가 로딩될 때 까지 10초 대기
-            element = WebDriverWait(driver, 7).until(
+            # 필터 초기화 버튼 나올때까지 대기
+            element = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "filter-bar__reset-button"))
             )
-        
-            end = time.time()
 
         except TimeoutException:
             # 실패 시에는 에러메시지로 Time Out 출력
             print('Time Out')
 
-        print("끝")
+        # print("스크롤 맨 아래까지 완료")
 
         # 영화링크수집
         elem = driver.find_elements_by_css_selector('div.title-list-grid div.title-list-grid__item a.title-list-grid__item--link')
@@ -80,16 +88,14 @@ class MovieScrapySpider(scrapy.Spider):
         for e in elem:
             linkUrl = e.get_attribute('href')
             linkUrls.append(linkUrl)
-
         # print("영화링크 수집 끝")
-        print(linkUrls)
-        driver.quit()
-
+        # print(linkUrls)
+        # driver.close()
 
         # parse로 스크랩요청
         for i in linkUrls:
             yield scrapy.Request(i, callback=self.parse)
-
+            sleep(1)
 
     def parse(self, response):
         item = JustwatchItem()   
@@ -106,7 +112,7 @@ class MovieScrapySpider(scrapy.Spider):
         except:
             item['just_rating'] = None
         try:
-            item['imdb_rating'] = response.css('div.detail-infos > div > div > div > a::text')[1].get().strip()
+            item['imdb_rating'] = response.css('div.detail-infos > div > div > div > a::text')[1].get().strip().split(" ")[0]
         except:
             item['imdb_rating'] = None   
         genre = response.xpath('//*[@id="base"]/div[2]/div/div[2]/div[2]/div/div[1]/div[1]/div/div[2]/span/text()').getall()
@@ -120,8 +126,7 @@ class MovieScrapySpider(scrapy.Spider):
         item['director'] = director
         actors = response.xpath('//*[@id="base"]/div[2]/div/div[2]/div[2]/div/div[1]/div[3]/div/div/a/text()').getall() 
         actors = ",".join(actors).replace(" ","")
-        item['actors'] = actors
-        
+        item['actors'] = actors        
         try:
             item['synopsis'] = response.xpath('//*[@id="base"]/div[2]/div/div[2]/div[2]/div/div[1]/div[4]/p/span/text()').get()
         except:
