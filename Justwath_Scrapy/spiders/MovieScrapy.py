@@ -22,16 +22,13 @@ class MovieScrapySpider(scrapy.Spider):
         'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
         'scrapy_fake_useragent.middleware.RandomUserAgentMiddleware': 400,      
         }
-    }
-
-
-    
+    }    
 
     # OTT_CATEGORY = [netflix, disney-plus, wavve,watcha]
     def start_requests(self):
         urls = []
-        for year in map(str,range(1900,2023)):            
-            sortingUrl = 'https://www.justwatch.com/kr/%EB%8F%99%EC%98%81%EC%83%81%EC%84%9C%EB%B9%84%EC%8A%A4/wavve?content_type=movie&release_year_from={}&release_year_until={}'.format(year, year)
+        for year in map(str,range(1931,2023)):            
+            sortingUrl = 'https://www.justwatch.com/kr/%EB%8F%99%EC%98%81%EC%83%81%EC%84%9C%EB%B9%84%EC%8A%A4/netflix?content_type=movie&release_year_from={}&release_year_until={}'.format(year, year)
             urls.append(sortingUrl)
         for url in urls:  
             yield scrapy.Request(url, callback=self.link_parse)
@@ -44,9 +41,7 @@ class MovieScrapySpider(scrapy.Spider):
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--log-level=3")
         chrome_options.add_argument("--disable-logging")
-        chrome_options.add_argument("--enable-precise-memory-info")
         # driver.maximize_window()
         driver = webdriver.Chrome(executable_path=path_chrome, chrome_options=chrome_options)
         driver.get(response.url)  
@@ -68,11 +63,10 @@ class MovieScrapySpider(scrapy.Spider):
             else:
                 scroll_location = driver.execute_script("return document.body.scrollHeight")
             # scroll_location = new_height
-            wait=WebDriverWait(driver, 3)
 
         try:
             # 필터 초기화 버튼 나올때까지 대기
-            element = WebDriverWait(driver, 10).until(
+            element = WebDriverWait(driver, 12).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "filter-bar__reset-button"))
             )
 
@@ -95,7 +89,7 @@ class MovieScrapySpider(scrapy.Spider):
         # parse로 스크랩요청
         for i in linkUrls:
             yield scrapy.Request(i, callback=self.parse)
-            sleep(1)
+
 
     def parse(self, response):
         item = JustwatchItem()   
@@ -137,10 +131,3 @@ class MovieScrapySpider(scrapy.Spider):
             item['posterLink'] = None
 
         yield item
-
-    
-
-
-
-
-        
