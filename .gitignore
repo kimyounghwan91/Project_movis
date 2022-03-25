@@ -1,4 +1,3 @@
-# ckiekim add
 exercise.ipynb
 roadapikey.txt
 kakaoapikey.txt
@@ -20,6 +19,7 @@ spam.csv
 # C extensions
 *.so
 .scrapy/
+*.scrapy
 # Distribution / packaging
 .Python
 build/
