@@ -38,7 +38,6 @@ class JustwatchCsvPipeline(object):
 
 
 # class MySQLPipeline(object):
-
 #     """
 #     Item을 MySQL에 저장하는 Pipeline
 #     """
