@@ -27,7 +27,7 @@ class MovieScrapySpider(scrapy.Spider):
     # OTT_CATEGORY = [netflix, disney-plus, wavve,watcha]
     def start_requests(self):
         urls = []
-        for year in map(str,range(1931,2023)):            
+        for year in map(str,range(1962,2023)):            
             sortingUrl = 'https://www.justwatch.com/kr/%EB%8F%99%EC%98%81%EC%83%81%EC%84%9C%EB%B9%84%EC%8A%A4/netflix?content_type=movie&release_year_from={}&release_year_until={}'.format(year, year)
             urls.append(sortingUrl)
         for url in urls:  
@@ -53,7 +53,7 @@ class MovieScrapySpider(scrapy.Spider):
             # 스크롤을 화면 가장 아래로 내린다.
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             # 페이지 로딩 대기
-            time.sleep(1)
+            time.sleep(2.5)
             # 새로운 높이를 가져와 저장
             new_height = driver.execute_script("return document.body.scrollHeight")
             # 현재 위치와 스크롤 내린 새로운 높이가 같으면 멈춤
@@ -66,7 +66,7 @@ class MovieScrapySpider(scrapy.Spider):
 
         try:
             # 필터 초기화 버튼 나올때까지 대기
-            element = WebDriverWait(driver, 12).until(
+            element = WebDriverWait(driver, 15).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "filter-bar__reset-button"))
             )
 
