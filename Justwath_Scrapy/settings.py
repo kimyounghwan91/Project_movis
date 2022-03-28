@@ -22,15 +22,15 @@ ROBOTSTXT_OBEY = False
 
 # 병렬 처리. 주석처리면 기본 16으로 설정됨
 # Scrapy 다운로더가 수행 할 최대 동시 (즉, 동시) 요청 수
-CONCURRENT_REQUESTS = 12
+CONCURRENT_REQUESTS = 20
 
 # 다운로드 딜레이
 # 웹 사이트에서 연속 페이지를 다운로드하기 전에 다운로더가 기다려야하는 시간 (초)
-DOWNLOAD_DELAY = 1.5
+DOWNLOAD_DELAY = 3
 # The download delay setting will honor only one of:
 
 # 웹 사이트 도메인 동시 병렬 처리 개수
-CONCURRENT_REQUESTS_PER_DOMAIN = 3
+CONCURRENT_REQUESTS_PER_DOMAIN = 5
 # 특정 웹 사이트 IP 주소 병렬 처리 개수
 #CONCURRENT_REQUESTS_PER_IP = 16
 
@@ -84,9 +84,9 @@ ITEM_PIPELINES = {
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
 AUTOTHROTTLE_ENABLED = True
 # The initial download delay
-AUTOTHROTTLE_START_DELAY = 1
+AUTOTHROTTLE_START_DELAY = 3
 # The maximum download delay to be set in case of high latencies
-AUTOTHROTTLE_MAX_DELAY = 3
+AUTOTHROTTLE_MAX_DELAY = 7
 # The average number of requests Scrapy should be sending in parallel to
 # each remote server
 #AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
@@ -96,7 +96,7 @@ AUTOTHROTTLE_MAX_DELAY = 3
 # Enable and configure HTTP caching (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html#httpcache-middleware-settings
 HTTPCACHE_ENABLED = True
-HTTPCACHE_EXPIRATION_SECS = 3000
+HTTPCACHE_EXPIRATION_SECS = 10000
 HTTPCACHE_DIR = 'httpcache'
 HTTPCACHE_IGNORE_HTTP_CODES = []
 HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
